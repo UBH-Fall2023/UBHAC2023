@@ -4,11 +4,11 @@
 public class hexagon {
     public int corners[] = new int[6];
     public int edge[] = new int[6];
-    public int type;
+    public String type;
     public int number;
     public boolean robber;
 
-    public hexagon(int type, int number) {
+    public hexagon(String type, int number) {
         this.type = type;
         this.number = number;
         this.robber = false;
@@ -20,7 +20,7 @@ public class hexagon {
         }
     }
 
-    public int getType() {
+    public String getType() {
         return this.type;
     }
 
@@ -36,7 +36,7 @@ public class hexagon {
         this.robber = robber;
     }
 
-    public void setType(int type) {
+    public void setType(String type) {
         this.type = type;
     }
 
