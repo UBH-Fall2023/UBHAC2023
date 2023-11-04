@@ -176,29 +176,9 @@ class ClientHandler implements Runnable {
         }
     }
 
-    public Move getMove() {
-        while (server.currentTurn == playerNum) {
-            try {
-                // Read a Move object from the client
-                Move move = (Move) input.readObject();
-
-                // Execute the move or handle it according to your game logic
-                move.execute(); // This will depend on the implementation of your Move class
-
-                // Depending on your game logic, you might want to broadcast this move to other
-                // clients or perform other actions.
-                // server.broadcastMove(move);
-
-                // Check if it's the end of turn
-                if (move instanceof EndTurnMove) { // Assuming EndTurnMove is a subclass of Move that represents
-                                                   // ending a turn
-                    server.endTurn();
-                }
-
-            } catch (ClassNotFoundException e) {
-                System.out.println("Received an object that is not a Move: " + e.getMessage());
-            }
-        }
+    public Move getMove() throws IOException, ClassNotFoundException {
+        Move move = (Move) input.readObject();
+        return move;
     }
 
     public void updateBoard(CatanBoard board) throws IOException {
