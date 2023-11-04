@@ -23,7 +23,7 @@ public class GameClient {
         out = new PrintWriter(socket.getOutputStream(), true);
 
         // Create a thread to read messages from the server
-        Thread readThread = new Thread(() -> {
+        Thread readThread = new Thread(() -> { //will recieve moves from the server
             while (true) {
                 try {
                     String serverMessage = in.readLine();
