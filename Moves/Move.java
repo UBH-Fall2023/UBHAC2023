@@ -8,5 +8,5 @@ public abstract class Move implements Serializable {
     // Common attributes for all moves, if any
     String moveType;
 
-    public abstract void execute(); // Example method to execute the move
+    public abstract CatanBoard execute(CatanBoard); // Example method to execute the move
 }
