@@ -1,22 +1,30 @@
+enum DevelopmentCardType {
+    KNIGHT,
+    VICTORYPOINT,
+    ROADBUILDING,
+    MONOPOLY,
+    YEAROFPLENTY
+}
+
 public class developmentCard {
-    public String type;
+    public DevelopmentCardType typeOfDevelopmentCard;
     public int player;
 
-    public developmentCard(String type, int player) {
-        this.type = type;
+    public developmentCard(DevelopmentCardType type, int player) {
+        this.typeOfDevelopmentCard = type;
         this.player = player;
     }
 
-    public String getType() {
-        return this.type;
+    public DevelopmentCardType getTypeOfDevelopmentCard() {
+        return this.typeOfDevelopmentCard;
     }
 
     public int getPlayer() {
         return this.player;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTypeOfDevelopmentCard(DevelopmentCardType type) {
+        this.typeOfDevelopmentCard = type;
     }
 
     public void setPlayer(int player) {

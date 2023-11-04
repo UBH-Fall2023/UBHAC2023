@@ -118,8 +118,21 @@ public class player {
     public void playDevelopmentCard(int index) {
         this.playedDevelopmentCards.add(this.developmentCards.get(index));
         developmentCards.remove(index);
-        if (this.playedDevelopmentCards.peek().getType() == "knight") {
+        if (this.playedDevelopmentCards.peek().getTypeOfDevelopmentCard() == DevelopmentCardType.KNIGHT) {
             this.armySize++;
+            //Logic for moving the robber and stealing a card
+        }
+        else if(this.playedDevelopmentCards.peek().getTypeOfDevelopmentCard() == DevelopmentCardType.MONOPOLY) {
+            //Logic for stealing two of a certain resource
+        }
+        else if(this.playedDevelopmentCards.peek().getTypeOfDevelopmentCard() == DevelopmentCardType.ROADBUILDING) {
+            //Logic for adding two roads
+        }
+        else if(this.playedDevelopmentCards.peek().getTypeOfDevelopmentCard() == DevelopmentCardType.VICTORYPOINT) {
+            this.addVictoryPoints(1);
+        }
+        else if(this.playedDevelopmentCards.peek().getTypeOfDevelopmentCard() == DevelopmentCardType.YEAROFPLENTY) {
+            //Logic for adding two resource cards
         }
     }
 }
