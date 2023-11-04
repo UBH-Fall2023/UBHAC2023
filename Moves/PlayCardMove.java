@@ -6,7 +6,7 @@ public class PlayCardMove extends Move {
     // Play card specific fields, like what card to play
 
     @Override
-    public void execute() {
+    public CatanBoard execute(CatanBoard) {
         // Logic to play a development card
     }
 }

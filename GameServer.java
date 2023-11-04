@@ -6,9 +6,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import Moves.*;
+
 public class GameServer {
     private ServerSocket serverSocket;
     private final List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<>());
+    int numPlayers = 4;
+    boolean gameOver = false;
+    int currentTurn = 0;
+    boolean turnOver = false;
+    CatanBoard board = new CatanBoard();
 
     public GameServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
@@ -16,29 +23,82 @@ public class GameServer {
     }
 
     public void start() {
-        while (true) {
+        // We first need to get all the players
+        while (clients.size() < numPlayers) {
             try {
                 // Accept a new client connection
                 Socket socket = serverSocket.accept();
                 System.out.println("New client connected: " + socket.getInetAddress().getHostAddress());
 
                 // Create a new handler for this client, then add to the list of clients
-                ClientHandler clientHandler = new ClientHandler(socket, this);
+                ClientHandler clientHandler = new ClientHandler(socket, this, clients.size());
                 clients.add(clientHandler);
 
-                // Start the new thread for handling the client
-                new Thread(clientHandler).start();
+
             } catch (IOException e) {
                 System.out.println("Error accepting client connection: " + e.getMessage());
                 e.printStackTrace();
             }
         }
+
+        // We now have all of our clients connected
+        // Do the initial first 2 rounds to place a road and settlement
+        for (int i = 0; i < numPlayers; i++) {
+            currentTurn = i;
+            int movesThisTurn = 0;
+            while(movesThisTurn < 2) {
+                Move move = clients.get(i).getMove();
+                if(move instanceof PlaceMove) {
+                    this.board = move.execute();
+                    movesThisTurn++;
+                }
+            }
+        }
+        for (int i = numPlayers; i > 0; i--) {
+            currentTurn = i;
+            int movesThisTurn = 0;
+            while(movesThisTurn < 2) {
+                Move move = clients.get(i).getMove();
+                if(move instanceof PlaceMove) {
+                    this.board = move.execute(this.board);
+                    movesThisTurn++;
+                }
+            }
+        }
+
+        // Begin main game loop
+        currentTurn = 0;
+        while (!gameOver) {
+            while (!turnOver) {
+                Move move = clients.get(currentTurn).getMove();
+                this.board = move.execute(this.board);
+                turnOver = (move instanceof EndTurnMove);
+            }
+            currentTurn = (currentTurn + 1) % numPlayers;
+            turnOver = false;
+        }
     }
 
+    public void endTurn() {
+        turnOver = true;
+    }
+
+    // // This method can be called to send a message to all clients
+    // public void broadcastMessage(String message) {
+    //     for (ClientHandler client : clients) {
+    //         client.sendMessage(message);
+    //     }
+    // }
+
     // This method can be called to send a message to all clients
-    public void broadcastMessage(String message) {
+    public void updateBoards() {
         for (ClientHandler client : clients) {
-            client.sendMessage(message);
+            try {
+                client.updateBoard(this.board);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
 
@@ -64,46 +124,87 @@ public class GameServer {
             e.printStackTrace();
         }
     }
+
+    public void removeClient(ClientHandler client) { // someone disconnected, just end it.
+        clients.remove(client);
+        gameOver = true;
+    }
 }
 
 class ClientHandler implements Runnable {
-    private Socket socket;
-    private GameServer server;
-    private PrintWriter out;
+    private Socket clientSocket;
+    private ObjectInputStream input;
+    private ObjectOutputStream output;
+    private GameServer server; // Reference to the server to interact with other clients or server-wide actions
+    private int playerNum;
 
-    public ClientHandler(Socket socket, GameServer server) {
-        this.socket = socket;
+    public ClientHandler(Socket clientSocket, GameServer server, int playerNum) {
+        this.clientSocket = clientSocket;
         this.server = server;
+        try {
+            output = new ObjectOutputStream(clientSocket.getOutputStream());
+            input = new ObjectInputStream(clientSocket.getInputStream());
+        } catch (IOException e) {
+            System.out.println("Error setting up streams for client handler: " + e.getMessage());
+            // Handle exception (e.g., logging and cleanup)
+        }
     }
 
     @Override
     public void run() {
         try {
-            // Create input and output streams
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new PrintWriter(socket.getOutputStream(), true);
+            while (!server.gameOver) { // if not their turn, ignore input
 
-            // Read messages from the client and broadcast them
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                System.out.println("Received from client: " + inputLine);
-                server.broadcastMessage(inputLine);
             }
         } catch (IOException e) {
-            System.out.println("Error in client handler: " + e.getMessage());
-            e.printStackTrace();
+            System.out.println("IOException in ClientHandler: " + e.getMessage());
+            // This is where you handle client disconnection
+            // You might also want to remove this client from the list of clients in the
+            // server
+            server.removeClient(this);
+            // And possibly check if the game can continue, or if it needs to end or wait
+            // for a new player
         } finally {
-            // Clean up
+            // Clean up resources
             try {
-                socket.close();
+                input.close();
+                output.close();
+                clientSocket.close();
             } catch (IOException e) {
-                System.out.println("Error when closing the socket: " + e.getMessage());
+                System.out.println("Error when closing streams and socket in client handler: " + e.getMessage());
             }
         }
     }
 
-    // Method to send a message to this client
-    public void sendMessage(String message) {
-        out.println(message);
+    public Move getMove() {
+        while (server.currentTurn == playerNum) {
+            try {
+                // Read a Move object from the client
+                Move move = (Move) input.readObject();
+
+                // Execute the move or handle it according to your game logic
+                move.execute(); // This will depend on the implementation of your Move class
+
+                // Depending on your game logic, you might want to broadcast this move to other
+                // clients or perform other actions.
+                // server.broadcastMove(move);
+
+                // Check if it's the end of turn
+                if (move instanceof EndTurnMove) { // Assuming EndTurnMove is a subclass of Move that represents
+                                                   // ending a turn
+                    server.endTurn();
+                }
+
+            } catch (ClassNotFoundException e) {
+                System.out.println("Received an object that is not a Move: " + e.getMessage());
+            }
+        }
     }
+
+    public void updateBoard(CatanBoard board) throws IOException {
+        output.writeObject(board);
+    }
+
+    // Implement other methods as needed, for example for sending messages or game
+    // state updates
 }

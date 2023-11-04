@@ -6,7 +6,7 @@ public class EndTurnMove extends Move {
     // End turn specific fields
 
     @Override
-    public void execute() {
+    public CatanBoard execute(CatanBoard) {
         // Logic to end a player's turn
     }
 }
