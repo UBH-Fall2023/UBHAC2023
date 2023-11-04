@@ -14,6 +14,22 @@ public class player {
     public int settlementCount;
     public int cityCount;
 
+    //Default Constructor
+    public player() {
+        this.playerNum = 0;
+        this.currentVictoryPoints = 0;
+        this.armySize = 0;
+        this.longestRoadLength = 0;
+        this.hasLargestArmy = false;
+        this.hasLongestRoad = false;
+        this.resources = null;
+        this.developmentCards = null;
+        this.playedDevelopmentCards = null;
+        this.settlementCount = 0;
+        this.cityCount = 0;
+    }
+
+    //Add to constructor
     public player(int playerNum, int currentVictoryPoints, boolean largestArmy, boolean longestRoad) {
         this.playerNum = playerNum;
         this.currentVictoryPoints = currentVictoryPoints;
@@ -21,6 +37,11 @@ public class player {
         this.longestRoadLength = 0;
         this.hasLargestArmy = false;
         this.hasLongestRoad = false;
+        this.resources = new ArrayList<resourceCard>();
+        this.developmentCards = new ArrayList<developmentCard>();
+        this.playedDevelopmentCards = new Stack<developmentCard>();
+        this.settlementCount = 0;
+        this.cityCount = 0;
     }
 
     public void setPlayerNum(int newPlayerNum) {
@@ -101,7 +122,4 @@ public class player {
             this.armySize++;
         }
     }
-
-
-    
 }
