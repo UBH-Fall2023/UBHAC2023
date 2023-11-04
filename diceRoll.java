@@ -1,5 +1,3 @@
-package UBHAC2023;
-
 
 class diceRoll {
     private final static int MINDIE = 1;
