@@ -1,54 +1,27 @@
 //Set up for each tile on the board
 //Types: 0 = sheep, 1 = brick, 2 = stone, 3 = wheat, 4 = wood, 5 = desert
 
-public class hexagon {
-    public int corners[] = new int[6];
-    public int edge[] = new int[6];
-    public String type;
-    public int number;
-    public boolean robber;
+import java.util.ArrayList;
 
-    public hexagon(String type, int number) {
-        this.type = type;
-        this.number = number;
-        this.robber = false;
-        for (int i = 0; i < 6; i++) {
-            this.edge[i] = 0;
-        }
-        for (int i = 0; i < 6; i++) {
-            this.corners[i] = 0;
-        }
+public class Hexagon {
+    private ArrayList<Vertex> vertices;
+    private ArrayList<Edge> edges;
+    private ArrayList<Side> sides;
+
+    public Hexagon() {
+        vertices = new ArrayList<>();
+        edges = new ArrayList<>();
     }
 
-    public String getType() {
-        return this.type;
+    public Side getSide(int sideIndex) {
+        return sides.get(sideIndex);
     }
 
-    public int getNumber() {
-        return this.number;
+    public ArrayList<Vertex> getVertices() {
+        return vertices;
+    }
+    public ArrayList<Edge> getEdges() {
+        return edges;
     }
 
-    public boolean getRobber() {
-        return this.robber;
-    }
-
-    public void setRobber(boolean robber) {
-        this.robber = robber;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public void setNumber(int number) {
-        this.number = number;
-    }
-
-    public void setEdge(int edge, int player) {
-        this.edge[edge] = player;
-    }
-
-    public int getEdge(int edge) {
-        return this.edge[edge];
-    }
 }
